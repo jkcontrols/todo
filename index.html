@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+}
+
+.todo-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+#new-task {
+    width: 95%;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    padding: 10px;
+    background-color: #fafafa;
+    border: 1px solid #ddd;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+li.completed {
+    text-decoration: line-through;
+    background-color: #e0e0e0;
+}
+
+.delete-btn {
+    background-color: red;
+    color: white;
+    width: 60px;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background-color: darkred;
+}
+
+    </style>
+    
+</head>
+<body>
+    <div class="todo-container">
+        <h1>To-Do List</h1>
+        <input type="text" id="new-task" autocomplete="off" placeholder="Add a new task...">
+        <button id="add-task-btn">Add Task</button>
+        <ul id="task-list"></ul>
+    </div>
+
+    <script >
+        function loadTasks() {
+    const taskList = JSON.parse(localStorage.getItem('tasks')) || [];
+    const taskListElement = document.getElementById('task-list');
+    taskListElement.innerHTML = ''; // Clear the current list
+
+    taskList.forEach(task => {
+        addTaskToDOM(task.text, task.completed);
+    });
+}
+
+// // Save tasks to localStorage
+function saveTasks() {
+    const tasks = [];
+    document.querySelectorAll('#task-list li').forEach(item => {
+        tasks.push({
+            text: item.querySelector('.task-text').textContent,
+            completed: item.classList.contains('completed')
+        });
+    });
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
+// Add task to DOM
+function addTaskToDOM(taskText, completed = false) {
+    const taskList = document.getElementById('task-list');
+    const li = document.createElement('li');
+    li.classList.toggle('completed', completed);
+    li.innerHTML = `
+        <span class="task-text">${taskText}</span>
+        <button class="delete-btn">Delete</button>
+    `;
+
+    // Mark task as completed when clicked
+    li.addEventListener('click', function() {
+        li.classList.toggle('completed');
+        saveTasks(); // Save the updated state
+    });
+
+    // Delete task
+    li.querySelector('.delete-btn').addEventListener('click', function() {
+        taskList.removeChild(li);
+        saveTasks(); // Save the updated task list
+    });
+
+    taskList.appendChild(li);
+}
+
+// Add new task when button is clicked
+document.getElementById('add-task-btn').addEventListener('click', function() {
+    const taskInput = document.getElementById('new-task');
+    const taskText = taskInput.value.trim();
+
+    if (taskText !== "") {
+        addTaskToDOM(taskText);
+        saveTasks(); // Save the updated task list
+        taskInput.value = ""; // Clear input field
+    } else {
+        alert("Please enter a task!");
+    }
+});
+
+// Load the tasks when the app starts
+loadTasks();
+
+    </script>
+</body>
+</html>
